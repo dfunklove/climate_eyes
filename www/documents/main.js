@@ -24,55 +24,71 @@ async function lookup_weather() {
   json = await response.json()
   console.log(json)
 
-  let chart_data = []
-
   // translate to graph format
-  // - grab the parameter from each row
-  // - put them in a series
+  let raw_data = []
   json.location.values.forEach((row) => {
-    chart_data.push({
-      x: row.period.split(" ")[0],
-      y: row.temp
-    })
+    raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
   })
 
-  console.log(chart_data)
-
   // init graph
-  initializeChart(chart_data)
-
-  console.log("chart is ready")
+  await initializeChart(raw_data)
 }
 
-function initializeChart(data) {
-  new Chart(document.getElementById("chart"), {
-    type: 'scatter',
-    data: {
-      //labels: labels,
-      datasets: [{
-        data: data,
-      }]
-    },
-    options: {
-      responsive: true,
-      legend: false,
-      scales: {
-        xAxes: [{
-          type: "time",
-          display: true
-        }],
-        yAxes: [{
-          type: "linear"
+function formatForChart(data) {
+  let chart_data = []
+  data.forEach((pair) => {
+    chart_data.push({ x: pair[0], y: pair[1] })
+  })
+  return chart_data
+}
+
+async function initializeChart(data) {
+  return new Promise((resolve, reject) => {
+    let chart_data = formatForChart(data)
+
+    let line_data = []
+    let result = regression.linear(data)
+    line_data.push(result.points[0])
+    line_data.push(result.points[result.points.length - 1])
+    line_data = formatForChart(line_data)
+
+    new Chart(document.getElementById("chart"), {
+      type: 'scatter',
+      data: {
+        //labels: labels,
+        datasets: [{
+          data: chart_data,
+        },
+        {
+          data: line_data,
+          type: 'line',
+          backgroundColor: 'rgba(255, 99, 132, 0.1)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 2
         }]
+      },
+      options: {
+        responsive: true,
+        legend: false,
+        scales: {
+          xAxes: [{
+            type: "time",
+            display: true
+          }],
+          yAxes: [{
+            type: "linear"
+          }]
+        }
       }
-    }
+    })
+    resolve()
   })
 }
 
 function buildYearOptions(selected=-1) {
   let output = ''
   let thisYear = (new Date()).getFullYear()
-  for (let i=1970; i<=thisYear; i++) {
+  for (let i=1970; i<thisYear; i++) {
     output += '<option '
     if (i == selected) {
       output += 'selected'
@@ -84,6 +100,6 @@ function buildYearOptions(selected=-1) {
 
 window.addEventListener("load", () => {
   let thisYear = (new Date()).getFullYear()
-  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 2)
-  document.getElementById('end_year').innerHTML = buildYearOptions(thisYear)
+  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 11)
+  document.getElementById('end_year').innerHTML = buildYearOptions(thisYear - 1)
 })
