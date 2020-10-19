@@ -1,21 +1,12 @@
 var API_KEY = '34BD7WDY2GHG9T005HH70BW9U'
 
 async function lookup_weather() {
-  let location = document.getElementById("location").value
-  let start_year = document.getElementById("start_year").value
-  let end_year = document.getElementById("end_year").value
-  let month = document.getElementById("month").value
-  let units = document.getElementById("units").value
-
-  // build url
-  let baseUrl = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/'
-  //let queryDate = '&startDateTime=' + start_year + '-01-01T00:00:00&endDateTime=' + end_year + '-12-31T23:59:59'
-  let queryDate = '&minYear=' + start_year + '&maxYear=' + end_year + '&chronoUnit=years&breakBy=years&dailySummaries=false'
-  let queryTypeParams = 'historysummary?&aggregateHours=24&unitGroup=us' + queryDate
-  let queryLocation = '&location=' + encodeURIComponent(location) + '&locationMode=single'
-  let queryKey = '&key=' + API_KEY
-  let queryContentType = '&contentType=json'
-  let url = baseUrl + queryTypeParams + queryLocation + queryKey + queryContentType
+  let location = encodeURIComponent(document.getElementById("location").value)
+  let start_year = encodeURIComponent(document.getElementById("start_year").value)
+  let end_year = encodeURIComponent(document.getElementById("end_year").value)
+  let month = encodeURIComponent(document.getElementById("month").value)
+  let units = encodeURIComponent(document.getElementById("units").value)
+  let url = `/climate-eyes/app/yearly?location=${location}&start_year=${start_year}&end_year=${end_year}&units=${units}`
 
   console.log("fetching url: "+url)
 
