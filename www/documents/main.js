@@ -1,5 +1,3 @@
-var API_KEY = '34BD7WDY2GHG9T005HH70BW9U'
-
 async function lookup_weather() {
   let location = encodeURIComponent(document.getElementById("location").value)
   let start_year = encodeURIComponent(document.getElementById("start_year").value)
