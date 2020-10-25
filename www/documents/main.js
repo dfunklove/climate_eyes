@@ -1,4 +1,5 @@
-async function lookup_weather() {
+async function lookup_weather(e) {
+  e.preventDefault()
   let location = encodeURIComponent(document.getElementById("location").value)
   let start_year = encodeURIComponent(document.getElementById("start_year").value)
   let end_year = encodeURIComponent(document.getElementById("end_year").value)
@@ -15,12 +16,20 @@ async function lookup_weather() {
 
   // translate to graph format
   let raw_data = []
-  json.location.values.forEach((row) => {
-    raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
-  })
+  if (json.location && json.location.values) {
+    json.location.values.forEach((row) => {
+      raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
+    })
 
-  // init graph
-  await initializeChart(raw_data)
+    // init graph
+    await initializeChart(raw_data)
+  } else {
+    // Assume its an error
+    let e = document.querySelector(".error")
+    e.innerHTML = json.message
+  }
+
+  return false
 }
 
 function formatForChart(data) {

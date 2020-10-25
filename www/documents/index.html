@@ -4,34 +4,43 @@ title: Climate Eyes
 center_title: true
 hide_sidebar: true
 ---
-<div>
-  <label for="location">Location</label><input type="text" id="location"><br>
-  <label for="start_year">Start Year</label><select class="year" id="start_year"></select><br>
-  <label for="end_year">End Year</label><select class="year" id="end_year"></select><br>
-  <label for="month">Month (Optional)</label><select id="month"><br>
-    <option>January</option>
-    <option>February</option>
-    <option>March</option>
-    <option>April</option>
-    <option>May</option>
-    <option>June</option>
-    <option>July</option>
-    <option>August</option>
-    <option>September</option>
-    <option>October</option>
-    <option>November</option>
-    <option>December</option>
-  </select><br>
-  <label for="units">Units</label><select id="units">
-    <option>US</option>
-    <option>Metric</option>
-  </select><br>
-  <button onclick="lookup_weather()">GO</button>
+<div class="climate-container">
+  <div class="error">
+  </div>
+  <form class="climate-controls bs-component" onsubmit="lookup_weather(event)">
+    <div class="form-group">
+      <label for="location">Location</label><input type="text" id="location">
+      <label for="start_year">Start Year</label><select class="year" id="start_year"></select><br>
+      <label for="end_year">End Year</label><select class="year" id="end_year"></select><br>
+      <label for="month">Month (Optional)</label><select id="month"><br>
+        <option>January</option>
+        <option>February</option>
+        <option>March</option>
+        <option>April</option>
+        <option>May</option>
+        <option>June</option>
+        <option>July</option>
+        <option>August</option>
+        <option>September</option>
+        <option>October</option>
+        <option>November</option>
+        <option>December</option>
+      </select><br>
+      <label for="units">Units</label><select id="units">
+        <option>US</option>
+        <option>Metric</option>
+      </select><br>
+    </div>
+    <div class="form-group center-contents">
+      <input type="submit" value="GO" class="btn btn-primary btn-lg"/>
+    </div>
+  </div>
 </div>
 <div style="width:100%;height:90%">
   <canvas id="chart"></canvas>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+<link rel="stylesheet" href="style.css" />
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/regression/2.0.1/regression.min.js" integrity="sha512-0k6FXllQktdobw8Nc8KQN2WtZrOuxpMn7jC2RKCF6LR7EdOhhrg3H5cBPxhs3CFzQVlO6ni1B9SDLUPhBs0Alg==" crossorigin="anonymous"></script>
