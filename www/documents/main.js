@@ -1,11 +1,21 @@
 async function lookup_weather(e) {
   e.preventDefault()
-  let location = encodeURIComponent(document.getElementById("location").value)
-  let start_year = encodeURIComponent(document.getElementById("start_year").value)
-  let end_year = encodeURIComponent(document.getElementById("end_year").value)
-  let month = encodeURIComponent(document.getElementById("month").value)
-  let units = encodeURIComponent(document.getElementById("units").value)
-  let url = `/climate-eyes/app/yearly?location=${location}&start_year=${start_year}&end_year=${end_year}&units=${units}`
+  clearErrors()
+  let url = new URL(`http://${window.location.host}/climate-eyes/app/yearly`)
+  let error_list = []
+  let params = ["location", "start_year", "end_year", "month", "units"]
+  for (let i = 0; i < params.length; i++) {
+    let id = params[i]
+    let value = document.getElementById(id).value
+    if (value && value.length > 0)
+      url.searchParams.append(id, value)
+    else
+      error_list.push("Please enter a value for "+id.replaceAll("_", " "));
+  }
+  if (error_list.length > 0) {
+    handleErrors(error_list)
+    return false
+  }
 
   console.log("fetching url: "+url)
 
@@ -14,9 +24,9 @@ async function lookup_weather(e) {
   json = await response.json()
   console.log(json)
 
-  // translate to graph format
   let raw_data = []
   if (json.location && json.location.values) {
+    // translate to graph format
     json.location.values.forEach((row) => {
       raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
     })
@@ -25,11 +35,20 @@ async function lookup_weather(e) {
     await initializeChart(raw_data)
   } else {
     // Assume its an error
-    let e = document.querySelector(".error")
-    e.innerHTML = json.message
+    handleErrors([json.message])
   }
 
   return false
+}
+
+function handleErrors(error_list) {
+  let e = document.querySelector(".error")
+  e.innerHTML = error_list.reduce((accumulator, currentValue) => accumulator + currentValue + "<br>")
+}
+
+function clearErrors() {
+  let e = document.querySelector(".error")
+  e.innerHTML = ""
 }
 
 function formatForChart(data) {
