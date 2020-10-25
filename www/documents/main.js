@@ -51,11 +51,20 @@ function clearErrors() {
   e.innerHTML = ""
 }
 
+// data is assumed to be in the format [[a,b], [c,d]]
+// the first of each pair is assumed to be a year, the second can be anything
 function formatForChart(data) {
   let chart_data = []
   data.forEach((pair) => {
-    chart_data.push({ x: pair[0], y: pair[1] })
+    let year = new Date(pair[0].toString())
+    chart_data.push({ x: year, y: pair[1] })
   })
+
+  // change last year from XXXX-01-01 to XXXX-12-31
+  let last_year = chart_data[chart_data.length - 1].x
+  last_year.setFullYear(data[data.length - 1][0])
+  last_year.setMonth(11)
+  last_year.setDate(30) // one day short to hide time zone conversion errors
   return chart_data
 }
 
