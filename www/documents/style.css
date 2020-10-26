@@ -1,20 +1,28 @@
-.climate-container {
+.center-contents {
+  text-align: center;
+}
+
+.center-flex {
   display:flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-input[type=submit] {
-  margin-top: 1rem;
+.hidden {
+  display:none;
 }
 
-.center-contents {
-  text-align: center;
+input[type=submit] {
+  margin-top: 1rem;
 }
 
 .error {
   color: red;
   font-size: 1.2em;
   padding: 1em;
+}
+
+.small-text {
+  font-size: 0.9em;
 }

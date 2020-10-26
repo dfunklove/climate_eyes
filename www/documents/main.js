@@ -1,6 +1,7 @@
 async function lookup_weather(e) {
   e.preventDefault()
   clearErrors()
+  disableSubmit()
   let url = new URL(`http://${window.location.host}/climate-eyes/app/yearly`)
   let error_list = []
   let params = ["location", "start_year", "end_year", "month", "units"]
@@ -14,6 +15,7 @@ async function lookup_weather(e) {
   }
   if (error_list.length > 0) {
     handleErrors(error_list)
+    enableSubmit()
     return false
   }
 
@@ -30,14 +32,18 @@ async function lookup_weather(e) {
     json.location.values.forEach((row) => {
       raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
     })
-
-    // init graph
+    let location_name = json.location.name
+    let start_year = raw_data[0][0]
+    let end_year = raw_data[raw_data.length - 1][0]
+    initDataHeading(location_name, start_year, end_year)
     await initializeChart(raw_data)
   } else {
     // Assume its an error
     handleErrors([json.message])
   }
 
+  enableSubmit()
+  hideSearchForm()
   return false
 }
 
@@ -49,6 +55,32 @@ function handleErrors(error_list) {
 function clearErrors() {
   let e = document.querySelector(".error")
   e.innerHTML = ""
+}
+
+function disableSubmit() {
+  let submit = document.getElementById("climate-submit")
+  submit.disabled = true
+  submit.value = "Loading..."
+}
+
+function enableSubmit() {
+  let submit = document.getElementById("climate-submit")
+  submit.disabled = false
+  submit.value = "GO"
+}
+
+function hideSearchForm() {
+  document.querySelector(".climate-controls").classList.add("hidden")
+  document.querySelector(".climate-data-heading").classList.remove("hidden")
+}
+
+function showSearchForm() {
+  document.querySelector(".climate-controls").classList.remove("hidden")
+  document.querySelector(".climate-data-heading").classList.add("hidden")
+}
+
+function initDataHeading(location_name, start_year, end_year) {
+  document.querySelector(".climate-data-heading-text").innerHTML = `${location_name}, ${start_year} - ${end_year}`
 }
 
 // data is assumed to be in the format [[a,b], [c,d]]
