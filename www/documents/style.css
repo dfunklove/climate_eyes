@@ -1,3 +1,7 @@
+.climate-app * {
+  font-family: sans-serif;
+}
+
 .center-contents {
   text-align: center;
 }
@@ -7,6 +11,18 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  min-width:300px;
+  min-height:300px;
+}
+
+.heading-location-name {
+  font-weight: bold;
 }
 
 .hidden {
@@ -25,4 +41,79 @@ input[type=submit] {
 
 .small-text {
   font-size: 0.9em;
+}
+
+.flexone {
+  flex:1;
+}
+
+.flex-v .chart-container, .flex-h .chart-container {
+  flex: 1;
+}
+
+.flex-h {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.flex-v {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+
+.stat-widget {
+  padding: 10px;
+  margin: 10px;
+  max-width: 175px;
+  overflow:hidden;
+  background-color: #ffffff;
+  border-radius: 3px;
+  box-shadow: 0px 0px 1px 0 rgba(0, 0, 0, 0.2), 0px 2px 4px 0 rgba(0, 0, 0, 0.2);
+  line-height: normal;
+}
+
+.stat-widget * {
+  line-height: normal;
+}
+
+.stat-widget.large {
+  max-width: 550px;
+}
+
+.stat-value {
+  flex: 1;
+  font-size:2em;
+  white-space: normal;
+  padding: 0px 1px 5px 1px;
+  text-align: center;
+}
+
+.stat-title {
+  color: #a6aaad;
+  font-size: 0.7em;
+  padding: 0px 0px 0px 0px;
+}
+
+.climate-data-heading {
+  cursor: pointer;
+  padding: 5px 5px 0px 5px;
+  border: 1px solid rgba(214, 214, 214);
+  border-radius: 4px;
+  margin: 5px;
+  font-size: 1.6em;
+}
+
+.uparrow {
+  font-size:50px;
+  color:#d7191c;
+}
+
+.downarrow {
+  font-size:50px;
+  color:#4caf50;
 }

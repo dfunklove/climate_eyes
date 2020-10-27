@@ -72,15 +72,19 @@ function enableSubmit() {
 function hideSearchForm() {
   document.querySelector(".climate-controls").classList.add("hidden")
   document.querySelector(".climate-data-heading").classList.remove("hidden")
+  document.querySelector(".climate-data-container").classList.remove("hidden")
 }
 
 function showSearchForm() {
   document.querySelector(".climate-controls").classList.remove("hidden")
   document.querySelector(".climate-data-heading").classList.add("hidden")
+  document.querySelector(".climate-data-container").classList.add("hidden")
 }
 
 function initDataHeading(location_name, start_year, end_year) {
-  document.querySelector(".climate-data-heading-text").innerHTML = `${location_name}, ${start_year} - ${end_year}`
+  document.querySelector(".heading-location-name").innerHTML = location_name
+  document.querySelector(".heading-start-year").innerHTML = start_year
+  document.querySelector(".heading-end-year").innerHTML = end_year
 }
 
 // data is assumed to be in the format [[a,b], [c,d]]
@@ -136,6 +140,11 @@ async function initializeChart(data) {
           yAxes: [{
             type: "linear"
           }]
+        },
+        title: {
+          display: true,
+          text: "Mean Temperature By Year",
+          fontSize: "16"
         }
       }
     })
@@ -158,6 +167,6 @@ function buildYearOptions(selected=-1) {
 
 window.addEventListener("load", () => {
   let thisYear = (new Date()).getFullYear()
-  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 11)
+  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 2)
   document.getElementById('end_year').innerHTML = buildYearOptions(thisYear - 1)
 })
