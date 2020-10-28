@@ -9,15 +9,15 @@ async function lookup_weather(e) {
   disableSubmit()
   let url = new URL(`http://${window.location.host}/climate-eyes/app/yearly`)
   let error_list = []
-  let params = ["location", "start_year", "end_year", "month", "units"]
-  for (let i = 0; i < params.length; i++) {
-    let id = params[i]
-    let value = document.getElementById(id).value
+  let elems = document.querySelectorAll(".climate-controls input,select")
+  elems.forEach(function(e) {
+    let id = e.id
+    let value = e.value
     if (value && value.length > 0)
       url.searchParams.append(id, value)
     else
       error_list.push("Please enter a value for "+id.replaceAll("_", " "));
-  }
+  })
   if (error_list.length > 0) {
     handleErrors(error_list)
     enableSubmit()
