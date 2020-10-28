@@ -126,7 +126,7 @@ async function initializeChart(data, units) {
     line_data.push(result.points[result.points.length - 1])
     line_data = formatForChart(line_data)
 
-    initStats(result.equation[0], result.points, units)
+    initStats(result.equation[0], data, units)
     
     new Chart(document.getElementById("chart"), {
       type: 'scatter',
