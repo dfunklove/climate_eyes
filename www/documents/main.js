@@ -1,3 +1,8 @@
+var DEG_F = "℉"
+var DEG_C = "℃"
+var UNIT_US = "US"
+var UNIT_METRIC = "Metric"
+
 async function lookup_weather(e) {
   e.preventDefault()
   clearErrors()
@@ -35,8 +40,9 @@ async function lookup_weather(e) {
     let location_name = json.location.name
     let start_year = raw_data[0][0]
     let end_year = raw_data[raw_data.length - 1][0]
+    let units = document.getElementById("units").value
     initDataHeading(location_name, start_year, end_year)
-    await initializeChart(raw_data)
+    await initializeChart(raw_data, units)
   } else {
     // Assume its an error
     handleErrors([json.message])
@@ -87,8 +93,10 @@ function initDataHeading(location_name, start_year, end_year) {
   document.querySelector(".heading-end-year").innerHTML = end_year
 }
 
-// data is assumed to be in the format [[a,b], [c,d]]
-// the first of each pair is assumed to be a year, the second can be anything
+/*
+ * data is assumed to be in the format [[a,b], [c,d]]
+ * the first of each pair is assumed to be a year, the second can be anything
+ */
 function formatForChart(data) {
   let chart_data = []
   data.forEach((pair) => {
@@ -104,7 +112,11 @@ function formatForChart(data) {
   return chart_data
 }
 
-async function initializeChart(data) {
+/*
+ * setup the chart and populate with data
+ * also calls initStats
+ */
+async function initializeChart(data, units) {
   return new Promise((resolve, reject) => {
     let chart_data = formatForChart(data)
 
@@ -114,12 +126,15 @@ async function initializeChart(data) {
     line_data.push(result.points[result.points.length - 1])
     line_data = formatForChart(line_data)
 
+    initStats(result.equation[0], result.points, units)
+    
     new Chart(document.getElementById("chart"), {
       type: 'scatter',
       data: {
-        //labels: labels,
         datasets: [{
           data: chart_data,
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 2
         },
         {
           data: line_data,
@@ -152,6 +167,39 @@ async function initializeChart(data) {
   })
 }
 
+/*
+ * Calculate min_change, max_change and populate the UI components
+ * points are assumed to be in the format [[a1,a2], [b1,b2]]
+ */
+function initStats(mean_change, points, units) {
+  let max_change = points[1][1] - points[0][1]
+  let min_change = max_change
+  for (let i=2; i<points.length; i++) {
+    let change = points[i][1] - points[i-1][1]
+    if (change > max_change)
+      max_change = change
+    else if (change < min_change)
+      min_change = change
+  }
+  document.querySelector(".stat-mean .stat-value").innerHTML = formatTemperature(mean_change, units)
+  document.querySelector(".stat-max .stat-value").innerHTML = formatTemperature(max_change, units)
+  document.querySelector(".stat-min .stat-value").innerHTML = formatTemperature(min_change, units)
+
+  document.querySelector(".stat-summary .stat-value").innerHTML = "Temperature is " + (mean_change >= 0 ? "increasing" : "decreasing")
+    + " " + formatTemperature(mean_change, units) + " every 10 years"
+  if (mean_change >= 0) {
+    document.querySelector(".stat-summary .uparrow").classList.remove("hidden")
+    document.querySelector(".stat-summary .downarrow").classList.add("hidden")
+  } else {
+    document.querySelector(".stat-summary .uparrow").classList.add("hidden")
+    document.querySelector(".stat-summary .downarrow").classList.remove("hidden")
+  }
+}
+
+function formatTemperature(temp_float, units) {
+  return temp_float.toFixed(1).toString() + (units == UNIT_US ? DEG_F : DEG_C)
+}
+
 function buildYearOptions(selected=-1) {
   let output = ''
   let thisYear = (new Date()).getFullYear()
@@ -167,6 +215,6 @@ function buildYearOptions(selected=-1) {
 
 window.addEventListener("load", () => {
   let thisYear = (new Date()).getFullYear()
-  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 2)
+  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 11)
   document.getElementById('end_year').innerHTML = buildYearOptions(thisYear - 1)
 })

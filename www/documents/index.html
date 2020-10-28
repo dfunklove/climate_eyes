@@ -5,28 +5,20 @@ center_title: true
 hide_sidebar: true
 ---
 <div class="climate-app">
+<p class="instructions center-contents">
+  Welcome to Climate Eyes!  We help you understand long term climate trends in your area, or anywhere in the world.
+</p>
 <div class="climate-controls-container center-flex">
   <div class="error">
   </div>
   <form class="climate-controls bs-component" onsubmit="lookup_weather(event)">
-    <div class="form-group">
-      <label for="location">Location</label><input type="text" id="location" value="austin,tx">
+    <p class="instructions center-contents">
+      To get started, choose a location and a time frame.
+    </p>
+      <div class="form-group">
+      <label for="location">Location</label><input type="text" id="location">
       <label for="start_year">Start Year</label><select class="year" id="start_year"></select><br>
       <label for="end_year">End Year</label><select class="year" id="end_year"></select><br>
-      <label for="month">Month (Optional)</label><select id="month"><br>
-        <option>January</option>
-        <option>February</option>
-        <option>March</option>
-        <option>April</option>
-        <option>May</option>
-        <option>June</option>
-        <option>July</option>
-        <option>August</option>
-        <option>September</option>
-        <option>October</option>
-        <option>November</option>
-        <option>December</option>
-      </select><br>
       <label for="units">Units</label><select id="units">
         <option>US</option>
         <option>Metric</option>
@@ -47,7 +39,7 @@ hide_sidebar: true
     <canvas id="chart"></canvas>
   </div>
   <div class="flex-v flexone">
-    <div class="flex-h stat-widget large">
+    <div class="flex-h stat-widget large stat-summary">
       <span class="uparrow">↑</span>
       <span class="downarrow hidden">↓</span>
       <div class="stat-value">Temperature is increasing 3.0℉ every 10 years</div>
