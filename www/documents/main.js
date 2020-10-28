@@ -197,7 +197,17 @@ function initStats(mean_change, points, units) {
 }
 
 function formatTemperature(temp_float, units) {
-  return temp_float.toFixed(1).toString() + (units == UNIT_US ? DEG_F : DEG_C)
+  return findMinimumPrecision(temp_float) + (units == UNIT_US ? DEG_F : DEG_C)
+}
+
+function findMinimumPrecision(n) {
+  let retval
+  for (let i=1; i<=10; i++) {
+    retval = n.toFixed(i)
+    if (parseFloat(retval) !== 0.0)
+      break
+  }
+  return retval
 }
 
 function buildYearOptions(selected=-1) {
