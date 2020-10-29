@@ -5,52 +5,60 @@ var UNIT_METRIC = "Metric"
 
 async function lookup_weather(e) {
   e.preventDefault()
-  clearErrors()
-  disableSubmit()
-  let url = new URL(`${window.location.protocol}//${window.location.host}/climate-eyes/app/yearly`)
-  let error_list = []
-  let elems = document.querySelector(".climate-controls").querySelectorAll("input,select")
-  elems.forEach(function(e) {
-    let id = e.id
-    let value = e.value
-    if (value && value.length > 0)
-      url.searchParams.append(id, value)
-    else
-      error_list.push("Please enter a value for "+id.replaceAll("_", " "));
-  })
-  if (error_list.length > 0) {
-    handleErrors(error_list)
-    enableSubmit()
-    return false
-  }
-
-  console.log("fetching url: "+url)
-
-  // fetch data
-  response = await fetch(url)
-  json = await response.json()
-  console.log(json)
-
-  let raw_data = []
-  if (json.location && json.location.values) {
-    // translate to graph format
-    json.location.values.forEach((row) => {
-      raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
+  try {
+    clearErrors()
+    disableSubmit()
+    let url = new URL(`${window.location.protocol}//${window.location.host}/climate-eyes/app/yearly`)
+    let error_list = []
+    let elems = document.querySelector(".climate-controls").querySelectorAll("input,select")
+    elems.forEach(function(e) {
+      let id = e.id
+      let value = e.value
+      if (value && value.length > 0)
+        url.searchParams.append(id, value)
+      else
+        error_list.push("Please enter a value for "+id.replaceAll("_", " "));
     })
-    let location_name = json.location.name
-    let start_year = raw_data[0][0]
-    let end_year = raw_data[raw_data.length - 1][0]
-    let units = document.getElementById("units").value
-    initDataHeading(location_name, start_year, end_year)
-    initStatSelector(json.columns)
-    await initializeChart(raw_data, units)
-  } else {
-    // Assume its an error
-    handleErrors([json.message])
-  }
+    if (error_list.length > 0) {
+      handleErrors(error_list)
+      enableSubmit()
+      return false
+    }
 
+    console.log("fetching url: "+url)
+
+    // fetch data
+    response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Unable to connect to server: ${response.status} (${response.statusText})`)
+    }
+    json = await response.json()
+    console.log(json)
+
+    let raw_data = []
+    if (json.location && json.location.values) {
+      // translate to graph format
+      json.location.values.forEach((row) => {
+        raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
+      })
+      let location_name = json.location.name
+      let start_year = raw_data[0][0]
+      let end_year = raw_data[raw_data.length - 1][0]
+      let units = document.getElementById("units").value
+      initDataHeading(location_name, start_year, end_year)
+      initStatSelector(json.columns)
+      await initializeChart(raw_data, units)
+    } else {
+      // Assume its an error
+      handleErrors([json.message])
+    }
+
+    hideSearchForm()
+  } catch (e) {    
+    handleErrors(["The following error ocurred:", e.toString(), "Please contact the developer for assistance."])
+  }
   enableSubmit()
-  hideSearchForm()
+
   return false
 }
 
