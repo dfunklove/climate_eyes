@@ -9,12 +9,12 @@ hide_sidebar: true
   Welcome to Climate Eyes!  We help you understand long term climate trends in your area, or anywhere in the world.
 </p>
 <div class="climate-controls-container center-flex">
-  <div class="error">
-  </div>
   <form class="climate-controls bs-component" onsubmit="lookup_weather(event)">
     <p class="instructions center-contents">
       To get started, choose a location and a time frame.
     </p>
+    <div class="error">
+    </div>
     <label for="location">Location</label><input type="text" id="location">
     <label for="start_year">Start Year</label><select class="year" id="start_year"></select><br>
     <label for="end_year">End Year</label><select class="year" id="end_year"></select><br>
@@ -26,8 +26,8 @@ hide_sidebar: true
       <input type="submit" id="climate-submit" value="GO" class="btn btn-primary btn-lg"/>
     </div>
   </form>
-  <div class="climate-data-heading center-flex hidden" onclick="showSearchForm()">
-    <div class="climate-data-heading-text">
+  <div class="climate-data-heading-container center-flex hidden">
+    <div class="climate-data-heading" onclick="showSearchForm()">
       <span class="heading-location-name"></span> &nbsp; <span class="heading-start-year"></span> to <span class="heading-end-year"></span>
     </div>
   </div>
@@ -46,17 +46,17 @@ hide_sidebar: true
       <div class="stat-widget stat-max">
         <div class="stat-title">Annual Max Change</div>
         <div class="stat-value">3.0℉</div>
-        <div class="stat-title">Per 10 years</div>
+        <div class="stat-period">Per 10 years</div>
       </div>
       <div class="stat-widget stat-mean">
         <div class="stat-title">Annual Mean Change</div>
         <div class="stat-value">3.0℉</div>
-        <div class="stat-title">Per 10 years</div>
+        <div class="stat-period">Per 10 years</div>
       </div>
       <div class="stat-widget stat-min">
         <div class="stat-title">Annual Min Change</div>
         <div class="stat-value">-3.0℉</div>
-        <div class="stat-title">Per 10 years</div>
+        <div class="stat-period">Per 10 years</div>
       </div>
     </div>
   </div>
