@@ -9,7 +9,7 @@ async function lookup_weather(e) {
   disableSubmit()
   let url = new URL(`http://${window.location.host}/climate-eyes/app/yearly`)
   let error_list = []
-  let elems = document.querySelectorAll(".climate-controls input,select")
+  let elems = document.querySelector(".climate-controls").querySelectorAll("input,select")
   elems.forEach(function(e) {
     let id = e.id
     let value = e.value
@@ -42,6 +42,7 @@ async function lookup_weather(e) {
     let end_year = raw_data[raw_data.length - 1][0]
     let units = document.getElementById("units").value
     initDataHeading(location_name, start_year, end_year)
+    initStatSelector(json.columns)
     await initializeChart(raw_data, units)
   } else {
     // Assume its an error
@@ -55,7 +56,7 @@ async function lookup_weather(e) {
 
 function handleErrors(error_list) {
   let e = document.querySelector(".error")
-  e.innerHTML = error_list.reduce((accumulator, currentValue) => accumulator + currentValue + "<br>")
+  e.innerHTML = error_list.reduce((accumulator, currentValue) => accumulator + "<br>" + currentValue)
 }
 
 function clearErrors() {
@@ -77,13 +78,13 @@ function enableSubmit() {
 
 function hideSearchForm() {
   document.querySelector(".climate-controls").classList.add("hidden")
-  document.querySelector(".climate-data-heading").classList.remove("hidden")
+  document.querySelector(".climate-data-heading-container").classList.remove("hidden")
   document.querySelector(".climate-data-container").classList.remove("hidden")
 }
 
 function showSearchForm() {
   document.querySelector(".climate-controls").classList.remove("hidden")
-  document.querySelector(".climate-data-heading").classList.add("hidden")
+  document.querySelector(".climate-data-heading-container").classList.add("hidden")
   document.querySelector(".climate-data-container").classList.add("hidden")
 }
 
@@ -107,8 +108,8 @@ function formatForChart(data) {
   // change last year from XXXX-01-01 to XXXX-12-31
   let last_year = chart_data[chart_data.length - 1].x
   last_year.setFullYear(data[data.length - 1][0])
-  last_year.setMonth(11)
-  last_year.setDate(30) // one day short to hide time zone conversion errors
+  last_year.setMonth(1)
+  last_year.setDate(2) // one day off to hide time zone conversion errors
   return chart_data
 }
 
@@ -174,6 +175,8 @@ async function initializeChart(data, units) {
 function initStats(mean_change, points, units) {
   let max_change = points[1][1] - points[0][1]
   let min_change = max_change
+
+  // process the points in pairs starting with 1 and 2
   for (let i=2; i<points.length; i++) {
     let change = points[i][1] - points[i-1][1]
     if (change > max_change)
@@ -181,12 +184,15 @@ function initStats(mean_change, points, units) {
     else if (change < min_change)
       min_change = change
   }
+  let per_decade = 10 * mean_change
+
   document.querySelector(".stat-mean .stat-value").innerHTML = formatTemperature(mean_change, units)
   document.querySelector(".stat-max .stat-value").innerHTML = formatTemperature(max_change, units)
   document.querySelector(".stat-min .stat-value").innerHTML = formatTemperature(min_change, units)
+  document.querySelectorAll(".stat-period").forEach((e) => { e.innerHTML = "For "+points.length+" years" })
 
-  document.querySelector(".stat-summary .stat-value").innerHTML = "Temperature is " + (mean_change >= 0 ? "increasing" : "decreasing")
-    + " " + formatTemperature(mean_change, units) + " every 10 years"
+  document.querySelector(".stat-summary .stat-value").innerHTML = "Temperature is " + (per_decade >= 0 ? "increasing" : "decreasing")
+    + " " + formatTemperature(per_decade, units) + " every 10 years"
   if (mean_change >= 0) {
     document.querySelector(".stat-summary .uparrow").classList.remove("hidden")
     document.querySelector(".stat-summary .downarrow").classList.add("hidden")
@@ -200,14 +206,34 @@ function formatTemperature(temp_float, units) {
   return findMinimumPrecision(temp_float) + (units == UNIT_US ? DEG_F : DEG_C)
 }
 
+/*
+ * round to the first non-zero digit after the decimal
+ * if the next digit is non-zero, include it as well
+ * 
+ * return a string representing the rounded number
+ */
 function findMinimumPrecision(n) {
   let retval
-  for (let i=1; i<=10; i++) {
-    retval = n.toFixed(i)
-    if (parseFloat(retval) !== 0.0)
+  let n_str = n.toString()
+  let dot_index = n_str.indexOf(".")
+  if (dot_index === -1)
+    return n.toString()
+
+  let min_precision = 0
+  for (let i=dot_index+1; i<n_str.length; i++) {
+    if (n_str.charAt(i) !== "0") {
+      min_precision = i - dot_index
+      if (i+1 < n_str.length && n_str.charAt(i+1) !== "0") {
+        min_precision = i - dot_index
+      }
       break
+    }
   }
-  return retval
+  return n.toFixed(min_precision)
+}
+
+function initStatSelector(columns) {
+  
 }
 
 function buildYearOptions(selected=-1) {
@@ -225,6 +251,6 @@ function buildYearOptions(selected=-1) {
 
 window.addEventListener("load", () => {
   let thisYear = (new Date()).getFullYear()
-  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 11)
+  document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 10)
   document.getElementById('end_year').innerHTML = buildYearOptions(thisYear - 1)
 })
