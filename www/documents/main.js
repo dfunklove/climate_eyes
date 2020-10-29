@@ -7,7 +7,7 @@ async function lookup_weather(e) {
   e.preventDefault()
   clearErrors()
   disableSubmit()
-  let url = new URL(`http://${window.location.host}/climate-eyes/app/yearly`)
+  let url = new URL(`${window.location.protocol}//${window.location.host}/climate-eyes/app/yearly`)
   let error_list = []
   let elems = document.querySelector(".climate-controls").querySelectorAll("input,select")
   elems.forEach(function(e) {
