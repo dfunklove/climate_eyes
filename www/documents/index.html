@@ -30,6 +30,7 @@ hide_sidebar: true
     <div class="climate-data-heading" onclick="showSearchForm()">
       <span class="heading-location-name"></span> &nbsp; <span class="heading-start-year"></span> to <span class="heading-end-year"></span>
     </div>
+    <select id="stat_select" onchange="changeStatSetting(this.value)"></select>
   </div>
 </div>
 <div class="climate-data-container flex-h hidden">

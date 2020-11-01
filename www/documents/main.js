@@ -1,7 +1,6 @@
-var DEG_F = "℉"
-var DEG_C = "℃"
-var UNIT_US = "US"
-var UNIT_METRIC = "Metric"
+var DEFAULT_STAT = "temp"
+var weather_data
+var weather_columns
 
 async function lookup_weather(e) {
   e.preventDefault()
@@ -35,18 +34,18 @@ async function lookup_weather(e) {
     json = await response.json()
     console.log(json)
 
-    let raw_data = []
     if (json.location && json.location.values) {
-      // translate to graph format
-      json.location.values.forEach((row) => {
-        raw_data.push([parseInt(row.period.split(" ")[0]), row.temp])
-      })
+      weather_data = json.location.values
+      weather_columns = json.columns
+      initStatSelector(json.columns)
+      let raw_data = getDataForStat(weather_data, DEFAULT_STAT)
+
       let location_name = json.location.name
       let start_year = raw_data[0][0]
       let end_year = raw_data[raw_data.length - 1][0]
-      let units = document.getElementById("units").value
       initDataHeading(location_name, start_year, end_year)
-      initStatSelector(json.columns)
+
+      let units = getUnitForStat(weather_columns, DEFAULT_STAT)
       await initializeChart(raw_data, units)
     } else {
       // Assume its an error
@@ -60,6 +59,30 @@ async function lookup_weather(e) {
   enableSubmit()
 
   return false
+}
+
+async function changeStatSetting(stat) {
+  let raw_data = getDataForStat(weather_data, stat)
+  let unit = getUnitForStat(weather_columns, stat)
+  await initializeChart(raw_data, unit)
+}
+
+/*
+ * values must be "location.values" from VisualCrossing JSON API
+ */
+function getDataForStat(values, stat) {
+  let raw_data = []
+  values.forEach((row) => {
+    raw_data.push([parseInt(row.period.split(" ")[0]), row[stat]])
+  })
+  return raw_data
+}
+
+/*
+ * columns must be "columns" from VisualCrossing JSON API
+ */
+function getUnitForStat(columns, stat) {
+  return columns[stat].unit
 }
 
 function handleErrors(error_list) {
@@ -125,7 +148,7 @@ function formatForChart(data) {
  * setup the chart and populate with data
  * also calls initStats
  */
-async function initializeChart(data, units) {
+async function initializeChart(data, unit) {
   return new Promise((resolve, reject) => {
     let chart_data = formatForChart(data)
 
@@ -135,7 +158,7 @@ async function initializeChart(data, units) {
     line_data.push(result.points[result.points.length - 1])
     line_data = formatForChart(line_data)
 
-    initStats(result.equation[0], data, units)
+    initStats(result.equation[0], data, unit)
     
     new Chart(document.getElementById("chart"), {
       type: 'scatter',
@@ -180,7 +203,7 @@ async function initializeChart(data, units) {
  * Calculate min_change, max_change and populate the UI components
  * points are assumed to be in the format [[a1,a2], [b1,b2]]
  */
-function initStats(mean_change, points, units) {
+function initStats(mean_change, points, unit) {
   let max_change = points[1][1] - points[0][1]
   let min_change = max_change
 
@@ -194,13 +217,13 @@ function initStats(mean_change, points, units) {
   }
   let per_decade = 10 * mean_change
 
-  document.querySelector(".stat-mean .stat-value").innerHTML = formatTemperature(mean_change, units)
-  document.querySelector(".stat-max .stat-value").innerHTML = formatTemperature(max_change, units)
-  document.querySelector(".stat-min .stat-value").innerHTML = formatTemperature(min_change, units)
+  document.querySelector(".stat-mean .stat-value").innerHTML = formatTemperature(mean_change, unit)
+  document.querySelector(".stat-max .stat-value").innerHTML = formatTemperature(max_change, unit)
+  document.querySelector(".stat-min .stat-value").innerHTML = formatTemperature(min_change, unit)
   document.querySelectorAll(".stat-period").forEach((e) => { e.innerHTML = "For "+points.length+" years" })
 
   document.querySelector(".stat-summary .stat-value").innerHTML = "Temperature is " + (per_decade >= 0 ? "increasing" : "decreasing")
-    + " " + formatTemperature(per_decade, units) + " every 10 years"
+    + " " + formatTemperature(per_decade, unit) + " every 10 years"
   if (mean_change >= 0) {
     document.querySelector(".stat-summary .uparrow").classList.remove("hidden")
     document.querySelector(".stat-summary .downarrow").classList.add("hidden")
@@ -210,8 +233,13 @@ function initStats(mean_change, points, units) {
   }
 }
 
-function formatTemperature(temp_float, units) {
-  return findMinimumPrecision(temp_float) + (units == UNIT_US ? DEG_F : DEG_C)
+function formatTemperature(temp_float, unit) {
+  if (unit === "degF") {
+    unit = "℉"
+  } else if (unit === "degC") {
+    unit = "℃"
+  }
+  return findMinimumPrecision(temp_float) + unit
 }
 
 /*
@@ -241,7 +269,20 @@ function findMinimumPrecision(n) {
 }
 
 function initStatSelector(columns) {
-  
+  let stat_select = document.getElementById("stat_select")
+  if (stat_select.children.length > 0)
+    return
+
+  for (const c of Object.values(json.columns)) {
+    if (c.unit) {
+      let option = document.createElement("option")
+      option.text = c.name
+      option.value = c.id
+      if (c.id === DEFAULT_STAT)
+        option.selected = true
+      stat_select.appendChild(option)
+    }
+  }
 }
 
 function buildYearOptions(selected=-1) {
