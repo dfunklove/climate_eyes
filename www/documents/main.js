@@ -8,21 +8,13 @@ async function lookup_weather(e) {
     clearErrors()
     disableSubmit()
     let url = new URL(`${window.location.protocol}//${window.location.host}/climate-eyes/app/yearly`)
-    let error_list = []
+
+    // collect input params, add to url
     let elems = document.querySelector(".climate-controls").querySelectorAll("input,select")
-    elems.forEach(function(e) {
-      let id = e.id
-      let value = e.value
-      if (value && value.length > 0)
-        url.searchParams.append(id, value)
-      else
-        error_list.push("Please enter a value for "+id.replaceAll("_", " "));
+    let params = gatherInputParams(elems)
+    Object.keys(params).forEach((name) => {
+      url.searchParams.append(name, params[name])
     })
-    if (error_list.length > 0) {
-      handleErrors(error_list)
-      enableSubmit()
-      return false
-    }
 
     console.log("fetching url: "+url)
 
@@ -35,8 +27,11 @@ async function lookup_weather(e) {
     console.log(json)
 
     if (json.location && json.location.values) {
+      // set globals
       weather_data = json.location.values
       weather_columns = json.columns
+
+      // process data and init ui elements
       initStatSelector(json.columns)
       let raw_data = getDataForStat(weather_data, DEFAULT_STAT)
 
@@ -53,8 +48,16 @@ async function lookup_weather(e) {
     }
 
     hideSearchForm()
-  } catch (e) {    
-    handleErrors(["The following error ocurred:", e.toString(), "Please contact the developer for assistance."])
+  } catch (e) {
+    let error_list = []
+    if (e.hasOwnProperty("params")) {
+      e.params.forEach((name) => {
+        error_list.push("Please enter a value for "+name.replaceAll("_", " "));
+      })
+    } else {
+      error_list = ["The following error ocurred:", e.toString(), "Please contact the developer for assistance."]
+    }
+    handleErrors(error_list)
   }
   enableSubmit()
 
@@ -65,6 +68,28 @@ async function changeStatSetting(stat) {
   let raw_data = getDataForStat(weather_data, stat)
   let unit = getUnitForStat(weather_columns, stat)
   await initializeChart(raw_data, unit)
+}
+
+/*
+ * Gather inputs from a list of elements into one object
+ * Throw a custom error for empty values
+ */
+function gatherInputParams(elems) {
+  let filled = {}
+  let empty = []
+  elems.forEach(function (e) {
+    if (e.value && e.value.length > 0) {
+      filled[e.id] = e.value
+    } else {
+      empty.push(e.id)
+    }
+  })
+  if (empty.length > 0) {
+    let e = new Error("Empty parameters")
+    e.params = empty
+    throw e
+  }
+  return filled
 }
 
 /*
