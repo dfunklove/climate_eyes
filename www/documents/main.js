@@ -33,7 +33,13 @@ async function lookup_weather(e) {
 
       // process data and init ui elements
       initStatSelector(json.columns)
-      let raw_data = getDataForStat(weather_data, DEFAULT_STAT)
+      let raw_data = []
+      try {
+        raw_data = getDataForStat(weather_data, DEFAULT_STAT)
+      } catch (e) {
+        e.message = `Weather data has invalid format: ${e.message}`
+        throw e
+      }
 
       let location_name = json.location.name
       let start_year = raw_data[0][0]
@@ -96,11 +102,19 @@ function gatherInputParams(elems) {
  * values must be "location.values" from VisualCrossing JSON API
  */
 function getDataForStat(values, stat) {
-  let raw_data = []
-  values.forEach((row) => {
-    raw_data.push([parseInt(row.period.split(" ")[0]), row[stat]])
+  return values.map(row => {
+    let yearStr = row.datetimeStr
+    if (!yearStr)
+      throw new Error(`No data for datetimeStr`)
+    yearStr = yearStr.substring(0,4)
+    let year = parseInt(yearStr)
+    if (yearStr.length < 4 || isNaN(year))
+      throw new Error(`Cannot parse year from "${yearStr}"`)
+    let statVal = row[stat]
+    if (!statVal)
+      throw new Error(`No data for ${stat}`)
+    return [year, statVal]
   })
-  return raw_data
 }
 
 /*
