@@ -123,3 +123,7 @@ input[type=submit] {
   font-size:50px;
   color:#4caf50;
 }
+
+.attribution {
+  margin-top: 3rem;
+}
