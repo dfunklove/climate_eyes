@@ -9,6 +9,7 @@ API_KEY = '34BD7WDY2GHG9T005HH70BW9U'
 BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/historysummary?'
 MAX_RESULTS_PER_DAY = 10000
 results_remaining = MAX_RESULTS_PER_DAY
+logging.basicConfig(filename='climate_eyes.log', level=logging.DEBUG, format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s')
 
 class ClimateClient:
   """ Query the VisualCrossing API for climate data """
