@@ -1,6 +1,6 @@
 import logging
 from flask import Flask, request
-import climate_eyes
+from climate_eyes import ClimateClient
 app = Flask(__name__)
 
 @app.route('/yearly')
@@ -10,8 +10,7 @@ def getHistoryByYear():
   end_year = request.args.get('end_year')
   units = request.args.get('units', default="").lower()
 
-  client = climate_eyes.ClimateClient()
-  return client.getHistoryByYear(location, start_year, end_year, units)
+  return ClimateClient.getHistoryByYear(location, start_year, end_year, units)
 
 if __name__=="__main__":
   logging.basicConfig(filename='climate_eyes.log', level=logging.DEBUG, format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s')
