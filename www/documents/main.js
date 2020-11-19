@@ -175,7 +175,7 @@ function formatForChart(data) {
     chart_data.push({ x: year, y: pair[1] })
   })
 
-  // change last year from XXXX-01-01 to XXXX-12-31
+  // change last year from XXXX-01-01 to XXXX-01-02
   let last_year = chart_data[chart_data.length - 1].x
   last_year.setFullYear(data[data.length - 1][0])
   last_year.setMonth(1)
