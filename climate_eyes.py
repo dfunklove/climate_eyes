@@ -1,8 +1,9 @@
 import requests
 import urllib.parse
 import logging
-from threading import Timer
+import time
 from datetime import datetime, timedelta
+from threading import Timer
 
 API_KEY = '34BD7WDY2GHG9T005HH70BW9U'
 BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/historysummary?'
@@ -68,16 +69,19 @@ class DailyQuotaTimer:
   @staticmethod
   def seconds_to_midnight():
     """Get the number of seconds until midnight."""
-    tomorrow = datetime.now() + timedelta(1)
+    now = datetime.now()
+    tomorrow = now + timedelta(1)
     midnight = datetime(year=tomorrow.year, month=tomorrow.month, 
-                        day=tomorrow.day, hour=0, minute=0, second=0)
-    return (midnight - datetime.now()).seconds
+                        day=tomorrow.day, hour=0, minute=0, second=0, 
+                        microsecond=tomorrow.microsecond)
+    return (midnight - now).seconds
 
   @staticmethod
   def reset_result_count():
     global results_remaining
     results_remaining = MAX_RESULTS_PER_DAY
     logging.getLogger(__name__).debug("reset quota")
+    time.sleep(2) # wait til tomorrow... an extra second just in case.
     timer = Timer(DailyQuotaTimer.seconds_to_midnight(), DailyQuotaTimer.reset_result_count)
     timer.start()
 
