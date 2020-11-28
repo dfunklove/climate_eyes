@@ -5,7 +5,6 @@ import time
 from datetime import datetime, timedelta
 from threading import Timer
 
-API_KEY = '34BD7WDY2GHG9T005HH70BW9U'
 BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/historysummary?'
 MAX_RESULTS_PER_DAY = 10000
 results_remaining = MAX_RESULTS_PER_DAY
@@ -15,7 +14,7 @@ class ClimateClient:
   """ Query the VisualCrossing API for climate data """
 
   @staticmethod
-  def getHistoryByYear(location, start_year, end_year, units):
+  def getHistoryByYear(API_KEY, location, start_year, end_year, units):
     params = { 'minYear': start_year,
       'maxYear': end_year,
       'chronoUnit': 'years',
