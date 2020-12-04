@@ -54,27 +54,13 @@ The project includes a sample Nginx configuration file in the nginx_conf folder.
 - If you are setting up Nginx from scratch, you can use the sample file as your default configuration.  Fill in your domain and the locations of your certificate and key files, and copy the file to the conf.d folder in your Nginx installation.
 
 ## Running the Application
-Open the web client in your web browser.  The location will depend on where you stored the files under the document root.  If you stored them in a folder called 'tikka', you would navigate to 'https://<server>/tikka'
+Open the web client in your web browser.  The location will depend on where you stored the files under the document root.  If you stored them in a folder called 'climate_eyes', you would navigate to 'https://YOUR-DOMAIN/climate_eyes'
 
 Start typing and the autocomplete should provide a list of financial symbols that match.  Select one and click 'GO'.  The graph will say "Waiting for data."  It may take a few seconds for the graph to populate.  This is because at least two data points are required to make a graph.  If you are using the app outside of trading hours, there may not be any price updates to show.  Eventually the graph will time out and say "No data available."
 
 If the app does not behave as expected, the web console should provide some clues as to what is going on.  If you're not using Nginx as your server, the websocket proxy is a good place to start looking for errors.
 
-## Updating the List of Symbols
-The list of symbols is stored in the file symbol_list.json in the www folder.  The autocomplete function of the web page reads from this file to give suggestions.  If you wish to update the list, follow the steps below.
-
-1. Download three lists from FinnHub: Stock Company Symbols, Forex Symbols, and Crypto Symbols.   Links can be found the the FinnHub API documentation.
-2. Remove the '[' and ']' characters from the beginning and end of each file.
-3. Concactenate the three files into one big file.
-4. Add one '[' at the beginning and one ']' at the end to make a single JSON array.
-5. Copy the file to the environment where you installed the server app, anywhere you are able to run tikka_server.py.
-6. Run this command:
-    transform.py [input_file] > symbol_list.json
-7. Copy symbol_list.json to the folder where you stored the tikka web app.  Look for the old symbol_list.json and replace it with the new file.
-
-That's it!  Your symbol list is now up to date.
-
-I've tried to cover all of the basic information needed to run the app.  If you've got questions or feedback, I'd love to hear from you!  Open an issue and I'll respond as soon as I can.  Happy trading!
+I've tried to cover all of the basic information needed to run the app.  If you've got questions or feedback, I'd love to hear from you!  Open an issue and I'll respond as soon as I can.  Thanks for your interest in Climate Eyes!
 
 [1]: <https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/> "Visual Crossing"
 [2]: <https://gunicorn.org/> "Gunicorn"
