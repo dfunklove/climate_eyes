@@ -341,17 +341,4 @@ window.addEventListener("load", () => {
   let thisYear = (new Date()).getFullYear()
   document.getElementById('start_year').innerHTML = buildYearOptions(thisYear - 10)
   document.getElementById('end_year').innerHTML = buildYearOptions(thisYear - 1)
-
-  // focus on the input field for easy access...
-  var input = document.getElementById('location');
-  input.focus();
-  // ...but if someone wishes to go back in their history, let them!
-  document.onkeydown = function(e) {
-    if (!e) {
-      var e = window.event;
-    }
-    if (e.key === "Backspace" && !input.value) {
-      history.back();
-    }
-  };
 })
