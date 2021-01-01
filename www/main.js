@@ -1,6 +1,6 @@
 var DEFAULT_STAT = "temp"
-var weather_data
-var weather_columns
+var weather_data // "location.values" from VisualCrossing JSON API
+var weather_columns // "columns" from VisualCrossing JSON API
 
 async function lookup_weather(e) {
   e.preventDefault()
@@ -35,7 +35,7 @@ async function lookup_weather(e) {
       initStatSelector(json.columns)
       let raw_data = []
       try {
-        raw_data = getDataForStat(weather_data, DEFAULT_STAT)
+        raw_data = getDataForStat(DEFAULT_STAT)
       } catch (e) {
         e.message = `Weather data has invalid format: ${e.message}`
         throw e
@@ -46,8 +46,7 @@ async function lookup_weather(e) {
       let end_year = raw_data[raw_data.length - 1][0]
       initDataHeading(location_name, start_year, end_year)
 
-      let units = getUnitForStat(weather_columns, DEFAULT_STAT)
-      await initializeChart(raw_data, units)
+      await initializeChart(raw_data, DEFAULT_STAT)
     } else {
       // Assume its an error
       handleErrors([json.message])
@@ -71,9 +70,8 @@ async function lookup_weather(e) {
 }
 
 async function changeStatSetting(stat) {
-  let raw_data = getDataForStat(weather_data, stat)
-  let unit = getUnitForStat(weather_columns, stat)
-  await initializeChart(raw_data, unit)
+  let raw_data = getDataForStat(stat)
+  await initializeChart(raw_data, stat)
 }
 
 /*
@@ -99,10 +97,10 @@ function gatherInputParams(elems) {
 }
 
 /*
- * values must be "location.values" from VisualCrossing JSON API
+ * uses global weather_data
  */
-function getDataForStat(values, stat) {
-  return values.map(row => {
+function getDataForStat(stat) {
+  return weather_data.map(row => {
     let yearStr = row.datetimeStr
     if (!yearStr)
       throw new Error(`No data for datetimeStr`)
@@ -117,11 +115,15 @@ function getDataForStat(values, stat) {
   })
 }
 
+function getDisplayNameForStat(stat) {
+  return weather_columns[stat].name
+}
+
 /*
- * columns must be "columns" from VisualCrossing JSON API
+ * uses global weather_columns
  */
-function getUnitForStat(columns, stat) {
-  return columns[stat].unit
+function getUnitForStat(stat) {
+  return weather_columns[stat].unit
 }
 
 function handleErrors(error_list) {
@@ -186,9 +188,14 @@ function formatForChart(data) {
 /*
  * setup the chart and populate with data
  * also calls initStats
+ * 
+ * data is assumed to be in the format [[a,b], [c,d]]
+ *   the first of each pair is assumed to be a year, the second can be anything
+ * stat is the name of the stat to display
  */
-async function initializeChart(data, unit) {
+async function initializeChart(data, stat) {
   return new Promise((resolve, reject) => {
+    let stat_display_name = getDisplayNameForStat(stat)
     let chart_data = formatForChart(data)
 
     let line_data = []
@@ -197,7 +204,7 @@ async function initializeChart(data, unit) {
     line_data.push(result.points[result.points.length - 1])
     line_data = formatForChart(line_data)
 
-    initStats(result.equation[0], data, unit)
+    initStats(result.equation[0], data, stat)
     
     new Chart(document.getElementById("chart"), {
       type: 'scatter',
@@ -229,7 +236,7 @@ async function initializeChart(data, unit) {
         },
         title: {
           display: true,
-          text: "Mean Temperature By Year",
+          text: "Mean "+stat_display_name+" By Year",
           fontSize: "16"
         }
       }
@@ -242,7 +249,9 @@ async function initializeChart(data, unit) {
  * Calculate min_change, max_change and populate the UI components
  * points are assumed to be in the format [[a1,a2], [b1,b2]]
  */
-function initStats(mean_change, points, unit) {
+function initStats(mean_change, points, stat) {
+  let unit = getUnitForStat(stat)
+  let stat_display_name = getDisplayNameForStat(stat)
   let max_change = points[1][1] - points[0][1]
   let min_change = max_change
 
@@ -261,7 +270,7 @@ function initStats(mean_change, points, unit) {
   document.querySelector(".stat-min .stat-value").innerHTML = formatTemperature(min_change, unit)
   document.querySelectorAll(".stat-period").forEach((e) => { e.innerHTML = "For "+points.length+" years" })
 
-  document.querySelector(".stat-summary .stat-value").innerHTML = "Temperature is " + (per_decade >= 0 ? "increasing" : "decreasing")
+  document.querySelector(".stat-summary .stat-value").innerHTML = stat_display_name + " is " + (per_decade >= 0 ? "increasing" : "decreasing")
     + " " + formatTemperature(per_decade, unit) + " every 10 years"
   if (mean_change >= 0) {
     document.querySelector(".stat-summary .uparrow").classList.remove("hidden")
