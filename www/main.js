@@ -47,12 +47,12 @@ async function lookup_weather(e) {
       initDataHeading(location_name, start_year, end_year)
 
       await initializeChart(raw_data, DEFAULT_STAT)
+
+      hideSearchForm()
     } else {
       // Assume its an error
       handleErrors([json.message])
     }
-
-    hideSearchForm()
   } catch (e) {
     let error_list = []
     if (e.hasOwnProperty("params")) {
