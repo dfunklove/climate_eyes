@@ -51,7 +51,7 @@ async function lookup_weather(e) {
       hideSearchForm()
     } else {
       // Assume its an error
-      handleErrors([json.message])
+      handleErrors([`Error: ${json.message}`])
     }
   } catch (e) {
     let error_list = []
