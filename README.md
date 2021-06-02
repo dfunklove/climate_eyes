@@ -5,10 +5,10 @@ Climate Eyes is a web application providing an overview of long term climate tre
 The app consists of a client and server.  The server side is a Python app which retrieves data from [Visual Crossing][1] and serves it over a REST API. The client is Javascript/HTML.
 
 ## Who uses Climate Eyes?
-This app would be most useful for someone who needs to follow a single financial asset with accuracy down to the second.
+I hope this app could be useful for anyone curious about the impact of climate change in their local area, or anywhere really.
 
 ## What is the goal of this project?
-I created this project to demonstrate the use of Websockets in Python.  It could provide a starting point for a more complex app with features like price alerts.
+I created this project to demonstrate the use of a REST API in Python.  It may also serve to raise awareness of climate change in the development community.
 
 ## How to install
 ### Client
